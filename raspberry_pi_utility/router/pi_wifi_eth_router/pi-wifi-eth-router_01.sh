@@ -1,7 +1,7 @@
 #!/bin/bash
 
-WIFI_SSID="Elbötos Hood"
-WIFI_PASS="Albert18"
+WIFI_SSID="WIFISSID"
+WIFI_PASS="WIFIPASS"
 
 #koppla pi till wifi 
 sudo tee /etc/netplan/01-wifi.yaml > /dev/null <<EOF

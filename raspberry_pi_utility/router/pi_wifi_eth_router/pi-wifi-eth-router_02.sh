@@ -1,7 +1,12 @@
 #!/bin/bash
+set -e  # exit on error
 
-WIFI_SSID="Elbötos Hood"
-WIFI_PASS="Albert18"
+echo "=== Raspberry Pi Wi-Fi to Ethernet Sharing Setup ==="
+
+# --- Ask user for Wi-Fi credentials ---
+read -p "Enter Wi-Fi SSID: " WIFI_SSID
+read -sp "Enter Wi-Fi password: " WIFI_PASS
+echo
 
 #koppla pi till wifi 
 sudo tee /etc/netplan/01-wifi.yaml > /dev/null <<EOF
@@ -50,7 +55,7 @@ sudo tee /etc/dnsmasq.d/eth0.conf > /dev/null <<EOF
 interface=eth0
 bind-interfaces
 listen-address=192.168.4.1
-dhcp-range=192.168.4.50,192.168.4.150,12h
+dhcp-range=192.168.4.50,192.168.4.60,12h
 server=1.1.1.1
 server=8.8.8.8
 EOF
@@ -65,10 +70,13 @@ sudo sysctl --system
 
 # lägg till postrouting på det som skickas via wifi till router, dvs maskera ursprungsaddr
 sudo iptables -t nat -A POSTROUTING -o wlan0 -j MASQUERADE
-# # logik för hur data rör sig genom klienter till pidongle til router och tvärtom. 
+# logik för hur data rör sig genom klienter till pidongle til router och tvärtom. 
 sudo iptables -A FORWARD -i wlan0 -o eth0 -m state --state RELATED,ESTABLISHED -j ACCEPT
 sudo iptables -A FORWARD -i eth0 -o wlan0 -j ACCEPT
 
 # Save iptables for reboot
 sudo netfilter-persistent save
 sudo systemctl enable netfilter-persistent
+
+echo "=== Setup Complete! ==="
+echo "Connect your devices to the Pi's Ethernet port at 192.168.4.1"
